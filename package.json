@@ -1,0 +1,24 @@
+{
+  "name": "unemployedihfy",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/tipollae/unemployedihfy#readme",
+  "bugs": {
+    "url": "https://github.com/tipollae/unemployedihfy/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tipollae/unemployedihfy.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "electronMain.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^42.1.0"
+  }
+}
