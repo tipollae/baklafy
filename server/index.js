@@ -12,6 +12,9 @@ const server = require("http").Server(app);
 const io = require("socket.io")(server);
 const port = 3000;
 
+// importing youtube downloader function
+const { downloadYoutubeAudio } = require('./downloadYoutubeAudio');
+
 if (!server.listening){
 
     server.listen(port, "0.0.0.0", ()=>{
@@ -30,6 +33,28 @@ const localTokens = {};
 io.on("connection", (socket)=>{
 
     console.log("someone has connected");
+
+    socket.on("downloadmp3", async(data) => {
+        const {url, folder} = data;
+
+        console.log("Received URL ", url)
+        console.log("Received folder ", folder)
+
+        try {
+            await downloadYoutubeAudio(url, folder);
+            
+            socket.emit('download-status', {
+                success: true,
+                message: 'Download complete!'
+            })
+        } catch (error) {
+            console.error("Download failed:", error)
+            socket.emit('download-status', {
+                success: false,
+                message: 'Download failed. Check console'
+            })
+        }
+    })
 
     socket.on("disconnect", ()=>{
 

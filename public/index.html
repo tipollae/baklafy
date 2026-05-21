@@ -4,14 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unemployedihfy</title>
+    <link href="./style.css" rel="stylesheet">
 </head>
 <body>
     <h1>Tim is a monkey</h1>
-    <img src="https://media.umbraco.io/longleat-cheddar/24jlcvgv/monkey-hero_1920x1080-min.png">
+    
+    <div class="input-container">
+        <div class="form-group">
+            <label>Enter YouTube URL</label>
+            <input type="text" id="url-input" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+
+        <label>Enter Download Directory</label>
+        <div class="directory-wrapper">
+            <button type="button" id="browse-btn" class="btn-secondary">Browse Folder</button>
+            <label id="selected-path-display">No folder selected (Using Default)</label>
+            <input type="hidden" id="directory-input" value=""/>
+        </div>
+
+        <button type="submit" id="download-btn">Convert to MP3</button>
+    </div>
+    
 
     <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
     <script src = "scripts/socketioBasics.js"></script>
     <script type = "text/javascript" src = "scripts/script.js"></script>
-
+    <script type="text/javascript" src="scripts/downloadAudio.js"></script>
 </body>
 </html>
