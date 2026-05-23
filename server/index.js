@@ -37,9 +37,6 @@ io.on("connection", (socket)=>{
     socket.on("downloadmp3", async(data) => {
         const {url, folder} = data;
 
-        console.log("Received URL ", url)
-        console.log("Received folder ", folder)
-
         try {
             await downloadYoutubeAudio(url, folder);
             
