@@ -58,7 +58,7 @@ async function connectToMongoDB(){
         serverDataHandler.clearExpiredTokensLoop(3000)
 
     } catch (error) {
-        console.error("MongoDB connection failed:", error);
+        console.error("Err: MongoDB connection failed:", error);
     }
 
 }

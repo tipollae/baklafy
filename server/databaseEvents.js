@@ -5,7 +5,7 @@ function databaseEventsHandler(socket, serverDataHandler){
 
         if (!serverDataHandler){
 
-            console.error("Database is not ready yet")
+            console.error("Err: Database is not ready yet");
             return;
 
         }

@@ -13,23 +13,24 @@ class databaseHandler{
     }
 
     async checkExistingAccount(givenAccountID){
+        
+        const foundTokenID = this.searchAttributeInTokens("accountID", givenAccountID);
 
-        var foundTokenID = this.searchAttributeInTokens("accountID", givenAccountID)
-        var existingDatabaseUser = true;
-
-        if (!this.localTokens[foundTokenID]){
-
-            existingDatabaseUser = await this.usersCollection.findOne({
-                accountID: givenAccountID
-            })
-
+        if (foundTokenID){
+            return {
+                existingLocalUser: true,
+                existingDatabaseUser: true
+            };
         }
 
+        const existingDatabaseUser = await this.usersCollection.findOne({
+            accountID: givenAccountID
+        });
+
         return {
-            existingLocalUser: !!this.localTokens[foundTokenID], 
+            existingLocalUser: false,
             existingDatabaseUser: !!existingDatabaseUser
         };
-
     }
 
     createToken(givenAccountID){
@@ -86,21 +87,30 @@ class databaseHandler{
     changeTokenAttribute(givenTokenID, givenAttribute, givenValue){
 
         if (!this.localTokens[givenTokenID]){
-            console.error("Invalid token ID");
-            return;
-        }
-        if (!this.localTokens[givenTokenID][givenAttribute]){
-            console.error("Invalid token attribute");
+            console.error("Err: Invalid token ID");
             return;
         }
 
-        this.localTokens[givenTokenID][givenAttribute] = givenValue;
+        const existingAttribute = Object.hasOwn(this.localTokens[givenTokenID], givenAttribute);
+        if (existingAttribute){
+
+            this.localTokens[givenTokenID][givenAttribute] = givenValue;
+
+        }
+
+        else{
+
+            console.trace("Err: Invalid attribute");
+
+        }
 
     }
 
     handleDisconnectedSocket(socket){
 
         if (!socket.data.token) return;
+        if (!this.localTokens[socket.data.token]) return;
+
         const tokenSockets = this.localTokens[socket.data.token].sockets;
         const foundSocketIndex = tokenSockets.indexOf(socket.id);
 
@@ -110,7 +120,7 @@ class databaseHandler{
         if (tokenSockets.length === 0){
 
             this.changeTokenAttribute(socket.data.token, "lastLoggedIn", Date.now());
-            console.log("This token is on track for expiry")
+            console.log("This token is on track for expiry");
 
         }
 
@@ -119,7 +129,13 @@ class databaseHandler{
     addSocketToToken(socket){
 
         if (!socket.data.token) return;
-        this.localTokens[socket.data.token].sockets.push(socket.id);
+        if (!this.localTokens[socket.data.token]) return;
+        
+        let sockets = this.localTokens[socket.data.token].sockets;
+
+        if (sockets.includes(socket.id)) return
+
+        sockets.push(socket.id);
 
     }
 
