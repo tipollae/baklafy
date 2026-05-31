@@ -13,7 +13,7 @@ class databaseHandler{
     }
 
     async checkExistingAccount(givenAccountID){
-        
+
         const foundTokenID = this.searchAttributeInTokens("accountID", givenAccountID);
 
         if (foundTokenID){
@@ -92,6 +92,7 @@ class databaseHandler{
         }
 
         const existingAttribute = Object.hasOwn(this.localTokens[givenTokenID], givenAttribute);
+
         if (existingAttribute){
 
             this.localTokens[givenTokenID][givenAttribute] = givenValue;
@@ -115,6 +116,7 @@ class databaseHandler{
         const foundSocketIndex = tokenSockets.indexOf(socket.id);
 
         if (foundSocketIndex === -1) return;
+
         tokenSockets.splice(foundSocketIndex, 1);
 
         if (tokenSockets.length === 0){
@@ -133,7 +135,7 @@ class databaseHandler{
         
         let sockets = this.localTokens[socket.data.token].sockets;
 
-        if (sockets.includes(socket.id)) return
+        if (sockets.includes(socket.id)) return;
 
         sockets.push(socket.id);
 
