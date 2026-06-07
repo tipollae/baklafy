@@ -86,7 +86,7 @@ io.on("connection", async (socket)=>{
         const {url, folder} = data;
 
         try {
-            await downloadYoutubeAudio(url, folder);
+            await downloadYoutubeAudio(url, folder, socket);
             
             socket.emit('download-status', {
                 success: true,

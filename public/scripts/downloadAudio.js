@@ -38,6 +38,19 @@ submitButton.addEventListener("click", (event) => {
     });
 });
 
+socket.on('download-file-transfer', async (data) => {
+    const { fileName, fileData } = data;
+    console.log(`Received raw file data from server for: ${fileName}`);
+
+    const result = await window.electronAPI.saveToAppData({ fileName, fileData });
+
+    if (result.success) {
+        alert(`Downloaded and saved to your local AppData:\n${result.path}`);
+    } else {
+        alert(`Failed to save file: ${result.error}`);
+    }
+});
+
 socket.on('download-status', (response) => {
     if (response.success) {
         submitButton.textContent = "Complete!"
@@ -59,4 +72,3 @@ socket.on('download-status', (response) => {
         }, 4000);
     }
 });
-

@@ -1,5 +1,7 @@
 const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
+const fs = require('fs');
+const { buffer } = require('stream/consumers');
 
 const createWindow = () => {
   const win = new BrowserWindow({
@@ -30,3 +32,19 @@ ipcMain.handle('dialog:openDirectory', async () => {
     return filePaths[0];
   }
 });
+
+ipcMain.handle('file:saveToAppData', async (event, { fileName, fileData }) => {
+  try {
+    const localLibraryDir = path.join(app.getPath('userData'), 'downloads');
+    await fs.promises.mkdir(localLibraryDir, {recursive: true});
+
+    const targetPath = path.join(localLibraryDir, fileName);
+    await fs.promises.writeFile(targetPath, Buffer.from(fileData));
+
+    console.log("Saved transferred file")
+    return {success: true, path: targetPath}
+  } catch (err) {
+    console.error('Failed to save transferred file')
+    return {success: false, error: err.message}
+  }
+})
