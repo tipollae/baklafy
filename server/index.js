@@ -83,10 +83,10 @@ io.on("connection", async (socket)=>{
     protocolFunctions(socket);
 
     socket.on("downloadmp3", async(data) => {
-        const {url, folder} = data;
+        const {url} = data;
 
         try {
-            await downloadYoutubeAudio(url, folder, socket);
+            await downloadYoutubeAudio(url, socket);
             
             socket.emit('download-status', {
                 success: true,

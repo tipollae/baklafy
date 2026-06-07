@@ -1,27 +1,10 @@
-const browseBtn = document.getElementById('browse-btn');
-const pathDisplay = document.getElementById('selected-path-display');
 const urlInput = document.getElementById("url-input");
-const directoryInput = document.getElementById("directory-input");
 const submitButton = document.getElementById("download-btn");
-
-browseBtn.addEventListener('click', async () => {
-    try {
-        const realPath = await window.electronAPI.selectFolder();
-
-        if (realPath) {
-            pathDisplay.textContent = realPath;
-            directoryInput.value = realPath;
-        }
-    } catch (err) {
-        console.error("Failed to open dialog: ", err);
-    }
-});
 
 submitButton.addEventListener("click", (event) => {
     event.preventDefault();
 
     const videoUrl = urlInput.value.trim();
-    const directory = directoryInput.value.trim();
 
     if (!videoUrl) {
         alert("Enter a youtube URL!");
@@ -34,7 +17,6 @@ submitButton.addEventListener("click", (event) => {
 
     socket.emit("downloadmp3", {
         url: videoUrl,
-        folder: directory
     });
 });
 
@@ -43,12 +25,6 @@ socket.on('download-file-transfer', async (data) => {
     console.log(`Received raw file data from server for: ${fileName}`);
 
     const result = await window.electronAPI.saveToAppData({ fileName, fileData });
-
-    if (result.success) {
-        alert(`Downloaded and saved to your local AppData:\n${result.path}`);
-    } else {
-        alert(`Failed to save file: ${result.error}`);
-    }
 });
 
 socket.on('download-status', (response) => {

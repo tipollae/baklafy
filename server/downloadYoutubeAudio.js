@@ -4,8 +4,8 @@ const ffmpegPath = require('ffmpeg-static');
 const youtubeDL = require('youtube-dl-exec');
 const userDataPath = path.join(process.env.APPDATA, 'unemployedihfy');
 
-function downloadYoutubeAudio(videoUrl, customFolder = `${userDataPath}/downloads`, socket = null) {
-    const targetDirectory = path.resolve(customFolder || `${userDataPath}/downloads`);
+function downloadYoutubeAudio(videoUrl, socket = null) {
+    const targetDirectory = path.resolve(`${userDataPath}/downloads`);
     const outputTemplate = path.join(targetDirectory, `%(title)s.%(ext)s`); //str template for output
 
     return youtubeDL.exec(videoUrl, {
