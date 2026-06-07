@@ -37,6 +37,12 @@ function downloadYoutubeAudio(videoUrl, customFolder = `${userDataPath}/download
                 fileName: fileName,
                 fileData: fileBuffer
             });
+
+            try {
+                await fs.promises.unlink(sourceFile);
+            } catch {
+                console.error("failed to delete temp server-file")
+            }
         }
 
         return processResult;
