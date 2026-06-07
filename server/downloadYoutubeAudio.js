@@ -4,7 +4,7 @@ const ffmpegPath = require('ffmpeg-static');
 const youtubeDL = require('youtube-dl-exec');
 const userDataPath = path.join(process.env.APPDATA, 'unemployedihfy');
 
-function downloadYoutubeAudio(videoUrl, customFolder = `${userDataPath}/downloads`) {
+function downloadYoutubeAudio(videoUrl, customFolder = `${userDataPath}/downloads`, socket = null) {
     const targetDirectory = path.resolve(customFolder || `${userDataPath}/downloads`);
     const outputTemplate = path.join(targetDirectory, `%(title)s.%(ext)s`); //str template for output
 
@@ -30,11 +30,19 @@ function downloadYoutubeAudio(videoUrl, customFolder = `${userDataPath}/download
         
         const fileName = mp3Files[0].name;
         const sourceFile = path.join(targetDirectory, fileName);
-        const destinationFile = path.join(path.resolve(`${userDataPath}/downloads`), fileName);
+        
+        if (socket) {
+            const fileBuffer = await fs.promises.readFile(sourceFile);
+            socket.emit('download-file-transfer', {
+                fileName: fileName,
+                fileData: fileBuffer
+            });
 
-        if (sourceFile !== destinationFile) {
-            await fs.promises.mkdir(path.dirname(destinationFile), { recursive: true });
-            await fs.promises.copyFile(sourceFile, destinationFile);
+            try {
+                await fs.promises.unlink(sourceFile);
+            } catch {
+                console.error("failed to delete temp server-file")
+            }
         }
 
         return processResult;
