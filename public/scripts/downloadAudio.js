@@ -23,10 +23,8 @@ submitButton.addEventListener("click", (event) => {
 
 socket.on('download-file-transfer', async (data) => {
 
-    const { fileName, fileData } = data;
-    console.log(`Received raw file data from server for: ${fileName}`);
-
     const { fileName, fileData, metadata } = data;
+    console.log(`Received raw file data from server for: ${fileName}`);
 
     document.getElementById('video-title').innerText = metadata.title;
     document.getElementById('video-uploader').innerText = metadata.uploader;
