@@ -35,3 +35,9 @@ button {
     color: #fff;
     border: 1px solid #555;
 }
+
+#video-thumbnail {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+}
