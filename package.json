@@ -1,14 +1,14 @@
 {
-  "name": "unemployedihfy",
+  "name": "baklafy",
   "version": "1.0.0",
   "description": "",
-  "homepage": "https://github.com/tipollae/unemployedihfy#readme",
+  "homepage": "https://github.com/tipollae/baklafy#readme",
   "bugs": {
-    "url": "https://github.com/tipollae/unemployedihfy/issues"
+    "url": "https://github.com/tipollae/baklafy/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/tipollae/unemployedihfy.git"
+    "url": "git+https://github.com/tipollae/baklafy.git"
   },
   "license": "ISC",
   "author": "",
