@@ -22,9 +22,9 @@ submitButton.addEventListener("click", (event) => {
 });
 
 socket.on('download-file-transfer', async (data) => {
-
     const { fileName, fileData, metadata } = data;
-    console.log(`Received raw file data from server for: ${fileName}`);
+
+    metadata.fileName = fileName;
 
     document.getElementById('video-title').innerText = metadata.title;
     document.getElementById('video-uploader').innerText = metadata.uploader;
@@ -32,9 +32,10 @@ socket.on('download-file-transfer', async (data) => {
     if (metadata.thumbnail) { 
         document.getElementById('video-thumbnail').src = metadata.thumbnail;
     }
+    document.getElementById('video-path').innerText = fileName;
 
-    const result = await window.electronAPI.saveToAppData({ fileName, fileData });
-
+    await window.electronAPI.saveToAppData({ fileName, fileData });
+    await window.electronAPI.updatePlaylist('playlist1', metadata);
 });
 
 socket.on('download-status', (response) => {

@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    selectFolder: () => ipcRenderer.invoke('dialog:openDirectory'),
-    saveToAppData: (fileInfo) => ipcRenderer.invoke('file:saveToAppData', fileInfo)
+    saveToAppData: (fileInfo) => ipcRenderer.invoke('file:saveToAppData', fileInfo),
+    updatePlaylist: (playlistName, metadata) => 
+        ipcRenderer.invoke('file:updatePlaylist', playlistName, metadata),
 });
