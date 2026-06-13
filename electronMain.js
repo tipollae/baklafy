@@ -21,18 +21,6 @@ app.whenReady().then(() => {
   createWindow()
 })
 
-ipcMain.handle('dialog:openDirectory', async () => {
-  const { canceled, filePaths } = await dialog.showOpenDialog({
-    properties: ['openDirectory'] //restrict to folder inputs
-  });
-
-  if (canceled) {
-    return null;
-  } else {
-    return filePaths[0];
-  }
-});
-
 ipcMain.handle('file:saveToAppData', async (event, { fileName, fileData }) => {
   try {
     const localLibraryDir = path.join(app.getPath('userData'), 'downloads');
@@ -46,5 +34,17 @@ ipcMain.handle('file:saveToAppData', async (event, { fileName, fileData }) => {
   } catch (err) {
     console.error('Failed to save transferred file')
     return {success: false, error: err.message}
+  }
+})
+
+ipcMain.handle('file:updatePlaylist', async (event, playlistName, metadata) => {
+  try {
+    const appDataDir = app.getPath('userData');
+    const realLocalPath = path.join(appDataDir, 'downloads', metadata.fileName);
+    metadata.filePath = realLocalPath
+
+    console.log('Metadata and playlistname received: ', playlistName, metadata);
+  } catch (err) {
+    console.log(err);
   }
 })

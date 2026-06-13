@@ -31,7 +31,7 @@ async function downloadYoutubeAudio(videoUrl, socket = null) {
             duration: rawMetadata.duration || 'Unknown Duration',
             uploader: rawMetadata.uploader || 'Unknown Uploader',
             date: currentDate || 'Unknown Date',
-            thumbnail: rawMetadata.thumbnail || null
+            thumbnail: rawMetadata.thumbnail || null,
         };
 
         const processResult = await youtubeDL.exec(videoUrl, {
