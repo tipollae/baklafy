@@ -26,6 +26,15 @@ socket.on('download-file-transfer', async (data) => {
     const { fileName, fileData } = data;
     console.log(`Received raw file data from server for: ${fileName}`);
 
+    const { fileName, fileData, metadata } = data;
+
+    document.getElementById('video-title').innerText = metadata.title;
+    document.getElementById('video-uploader').innerText = metadata.uploader;
+    document.getElementById('video-date').innerText = metadata.date;
+    if (metadata.thumbnail) { 
+        document.getElementById('video-thumbnail').src = metadata.thumbnail;
+    }
+
     const result = await window.electronAPI.saveToAppData({ fileName, fileData });
 
 });
