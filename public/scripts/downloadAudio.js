@@ -18,13 +18,16 @@ submitButton.addEventListener("click", (event) => {
     socket.emit("downloadmp3", {
         url: videoUrl,
     });
+
 });
 
 socket.on('download-file-transfer', async (data) => {
+
     const { fileName, fileData } = data;
     console.log(`Received raw file data from server for: ${fileName}`);
 
     const result = await window.electronAPI.saveToAppData({ fileName, fileData });
+
 });
 
 socket.on('download-status', (response) => {

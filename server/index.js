@@ -11,6 +11,7 @@ dns.setDefaultResultOrder("ipv4first");
 //importing express
 const express = require("express");
 const path = require("path");
+
 const { clearInterval } = require("timers");
 
 //new express instance
@@ -84,7 +85,6 @@ io.on("connection", async (socket)=>{
 
     socket.on("downloadmp3", async(data) => {
         const {url} = data;
-
         try {
             await downloadYoutubeAudio(url, socket);
             
@@ -92,14 +92,15 @@ io.on("connection", async (socket)=>{
                 success: true,
                 message: 'Download complete!'
             })
-        } catch (error) {
+        } 
+        catch (error) {
             console.error("Download failed:", error)
             socket.emit('download-status', {
                 success: false,
                 message: 'Download failed. Check console'
             })
         }
-    })
+    });
 
     socket.on("disconnect", ()=>{
 

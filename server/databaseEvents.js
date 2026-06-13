@@ -16,7 +16,7 @@ function databaseEventsHandler(socket, serverDataHandler){
 
         if (!existingDatabaseUser){
 
-            socket.emit("invalid-account")
+            socket.emit("invalid-account");
             return;
 
         }
@@ -42,10 +42,22 @@ function databaseEventsHandler(socket, serverDataHandler){
 
         socket.emit("valid-account")
 
+    });
+
+    socket.on("log-user-in", (givenUsername, givenPassword)=>{
+
+
+
+    })
+
+    socket.on("create-account", (givenUsername, givenPassword, givenEmail)=>{
+
+
+
     })
 
 }
-
+ 
 function wait (waitTime){
 
     return new Promise(resolve => setTimeout(resolve, waitTime))

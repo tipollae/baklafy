@@ -1,5 +1,28 @@
 
 const crypto = require("crypto");
+const bcrypt = require("bcrypt");
+const nodemailer = require('nodemailer');
+
+/*
+let plainPassword = "verysafepassword";
+let saltRounds = 10;
+
+async function test(){
+
+    console.log("please hash");
+
+    try {
+        const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+        console.log("Secure Hash:", hashedPassword);
+        return hashedPassword;
+    } catch (error) {
+        console.error("Error hashing password:", error);
+    }
+}
+
+test();
+*/
+
 
 class databaseHandler{
 
@@ -150,6 +173,80 @@ class databaseHandler{
     async extractPlaylistData(givenAccountID) {
 
 
+    }
+
+    //creating accounts stuff
+
+    verifyUsername(givenUsername){
+        givenUsername = String(givenUsername);
+        if (givenUsername.length <= 0){
+
+            return {
+
+                success: false,
+                message: "Username too short"
+
+            }
+
+        }
+
+        else if (givenUsername.length >= 13){
+
+            return {
+
+                success: false,
+                message: "Username too long"
+
+            }
+
+        }
+
+        else if (givenUsername.includes(" ")){
+
+            return {
+
+                success: false,
+                message: "Username includes spaces"
+
+            }
+
+        }
+
+        return {
+
+            success: true,
+            message: "Valid username"
+
+        }
+
+    }
+
+    verifyPassword(givenPassword){
+        givenPassword = String(givenPassword);
+        if (givenPassword.length <= 4){
+
+            return {
+
+                success: false,
+                message: "Username too short"
+
+            }
+
+        }
+
+        return {
+
+            success: true,
+            message: "Valid password"
+
+        }
+
+    }
+
+    verifyEmail(){
+
+
+        
     }
 
 }

@@ -13,3 +13,16 @@ socket.on("connect_error", (err) => {
     console.log("context:", err.context);
     console.log("full:", err);
 });
+
+socket.on("invalid-account", ()=>{
+
+    alert("inavlid account");
+    window.location = "./login/index.html"
+
+})
+
+socket.on("valid-account", ()=>{
+
+    alert("logged in!");
+
+})
