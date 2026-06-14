@@ -7,7 +7,7 @@ submitButton.addEventListener("click", (event) => {
     const videoUrl = urlInput.value.trim();
 
     if (!videoUrl) {
-        alert("Enter a youtube URL!");
+        console.log("Enter a youtube URL!");
         return;
     }
 

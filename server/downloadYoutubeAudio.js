@@ -7,6 +7,7 @@ const userDataPath = path.join(process.env.APPDATA, 'baklafy');
 async function downloadYoutubeAudio(videoUrl, socket = null) {
     const targetDirectory = path.resolve(`${userDataPath}/downloads`);
     const outputTemplate = path.join(targetDirectory, `%(title)s.%(ext)s`);
+    await fs.promises.mkdir(targetDirectory, {recursive: true});
 
     try {
         const today = new Date();
@@ -25,6 +26,8 @@ async function downloadYoutubeAudio(videoUrl, socket = null) {
             addHeader: ['referer:youtube.com', 'user-agent:googlebot']
         });
 
+        const sanitizedTitle = rawMetadata.title.replace(/[\\/:*?"<>|]/g, "_") || 'Unknown Title';
+
         const metadata = {
             title: rawMetadata.title || 'Unknown Title',
             id: rawMetadata.id || 'Unknown ID',
@@ -34,33 +37,24 @@ async function downloadYoutubeAudio(videoUrl, socket = null) {
             thumbnail: rawMetadata.thumbnail || null,
         };
 
-        const processResult = await youtubeDL.exec(videoUrl, {
+        const exactFileName = `${sanitizedTitle}.mp3`;
+        const sourceFile = path.join(targetDirectory, exactFileName);
+
+        await youtubeDL.exec(videoUrl, {
             extractAudio: true,
             audioFormat: 'mp3',
             audioQuality: '0', 
             ffmpegLocation: ffmpegPath,
-            output: outputTemplate,
+            output: sourceFile,
             noAbortOnError: true,
             addHeader: ['referer:youtube.com', 'user-agent:googlebot']
-        });
+        })
 
-        const files = await fs.promises.readdir(targetDirectory);
-
-        const mp3Files = files
-            .filter(f => f.endsWith('.mp3'))
-            .map(f => ({ name: f, time: fs.statSync(path.join(targetDirectory, f)).mtime.getTime() }))
-            .sort((a, b) => b.time - a.time);
-
-        if (mp3Files.length === 0) return { processResult, metadata };
-        
-        const fileName = mp3Files[0].name;
-        const sourceFile = path.join(targetDirectory, fileName);
-        
         if (socket) {
             const fileBuffer = await fs.promises.readFile(sourceFile);
             
             socket.emit('download-file-transfer', {
-                fileName: fileName,
+                fileName: exactFileName,
                 fileData: fileBuffer,
                 metadata: metadata 
             });
@@ -72,7 +66,7 @@ async function downloadYoutubeAudio(videoUrl, socket = null) {
             }
         }
 
-        return { processResult, metadata };
+        return { metadata };
 
     } catch (err) {
         const isInvalidUrl = err && err.stderr && (
