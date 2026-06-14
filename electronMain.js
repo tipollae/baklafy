@@ -41,10 +41,38 @@ ipcMain.handle('file:updatePlaylist', async (event, playlistName, metadata) => {
   try {
     const appDataDir = app.getPath('userData');
     const realLocalPath = path.join(appDataDir, 'downloads', metadata.fileName);
+    //set metadata filepath for reference
     metadata.filePath = realLocalPath
 
-    console.log('Metadata and playlistname received: ', playlistName, metadata);
-  } catch (err) {
+    //Get playlist directory and find JSON file. Create baklafy/playlists if not existent
+    const localPlaylistDir = path.join(app.getPath('userData'), 'playlists');
+    const playlistFilePath = path.join(localPlaylistDir, `${playlistName}.json`)
+
+    await fs.promises.mkdir(localPlaylistDir, {recursive: true});
+    let playlistData = {};
+
+    if (fs.existsSync(playlistFilePath)) {
+      const fileContent = await fs.promises.readFile(playlistFilePath, 'utf8');
+
+      if (fileContent.trim()) {
+        playlistData = JSON.parse(fileContent);
+      }
+    }
+
+    // prevent duplicate downloads
+    playlistData[metadata.id] = {
+        title: metadata.title,
+        author: metadata.uploader,
+        date: metadata.date,
+        thumbnail: metadata.thumbnail,
+        filePath: metadata.filePath
+    };  
+
+    await fs.promises.writeFile(playlistFilePath, JSON.stringify(playlistData, null, 2), 'utf8');
+    return { success: true, message: 'Playlist updated successfully' };
+
+ } catch (err) {
     console.log(err);
+    return { success: false, error: err.message };
   }
 })
