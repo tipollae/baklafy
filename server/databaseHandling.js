@@ -3,6 +3,15 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 
+const characters = [
+"A","B","C","D","E","F",
+"G","H","I","J","K","L",
+"M","N","O","P","Q","R",
+"S","T","U","V","W","X",
+"Y","Z","1","2","3","4",
+"5","6","7","8","9","0",
+]
+
 const transporter = nodemailer.createTransport({
 service: 'gmail',
 auth: {
@@ -12,23 +21,23 @@ auth: {
 });
 
 /*
-let plainPassword = "verysafepassword";
-let saltRounds = 10;
+    let plainPassword = "verysafepassword";
+    let saltRounds = 10;
 
-async function test(){
+    async function test(){
 
-    console.log("please hash");
+        console.log("please hash");
 
-    try {
-        const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
-        console.log("Secure Hash:", hashedPassword);
-        return hashedPassword;
-    } catch (error) {
-        console.error("Error hashing password:", error);
+        try {
+            const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
+            console.log("Secure Hash:", hashedPassword);
+            return hashedPassword;
+        } catch (error) {
+            console.error("Error hashing password:", error);
+        }
     }
-}
 
-test();
+    test();
 */
 
 
@@ -42,6 +51,14 @@ class databaseHandler{
         this.playlistCollection = this.database.collection("playlists");
 
         this.verificationCodes = {};
+        /*
+        
+        username: username
+        password: hashedPassword
+        email: email
+        dateCreated: Date.now()
+        
+        */
 
     }
 
@@ -82,28 +99,6 @@ class databaseHandler{
         }
 
         return generatedTokenID;
-
-    }
-
-    async clearExpiredTokensLoop(intervalTime){
-
-        const hours = 0.00833333; //roughly 30 secs, made it short just for testing
-        const expiryTime = hours * 3600000; // converting hours to miliseconds
-        const currentTime = Date.now();
-
-        for (let tokenID in this.localTokens){
-
-            if (!this.localTokens[tokenID].lastLoggedIn) continue;
-            if (currentTime - this.localTokens[tokenID].lastLoggedIn >= expiryTime) delete this.localTokens[tokenID];
-
-        }
-
-        console.log("expired tokens loop");
-        console.log(this.localTokens);
-
-        await wait(intervalTime);
-
-        this.clearExpiredTokensLoop(intervalTime);
 
     }
 
@@ -155,7 +150,6 @@ class databaseHandler{
         if (tokenSockets.length === 0){
 
             this.changeTokenAttribute(socket.data.token, "lastLoggedIn", Date.now());
-            console.log("This token is on track for expiry");
 
         }
 
@@ -187,7 +181,7 @@ class databaseHandler{
 
     //creating accounts stuff
 
-    verifyUsername(givenUsername){
+    async verifyUsername(givenUsername){
 
         givenUsername = String(givenUsername);
         const existingUsername = await this.usersCollection.findOne({username: givenUsername});
@@ -262,7 +256,7 @@ class databaseHandler{
 
     }
 
-    verifyEmail(givenEmail){
+    async verifyEmail(givenEmail){
 
         const existingEmail = await this.usersCollection.findOne({email: givenEmail});
 
@@ -275,13 +269,34 @@ class databaseHandler{
 
         }
 
-        const verificationCodeSuccess = createAccountVerificationCode(givenEmail);
-
-        return verificationCodeSuccess;
+        const verificationCode = createAccountVerificationCode(givenEmail);
         
     }
 
     createAccountVerificationCode(givenEmail){
+
+        let formedVerificationCode = ""
+        
+        do{
+
+            const LENGTH = 6;
+
+            for (let i = 0; i < LENGTH; i++){
+
+                const character = characters[Math.floor(Math.random()*characters.length)];
+                formedVerificationCode += character;
+
+            }
+
+        }while(this.verificationCodes[formedVerificationCode]);
+
+        for (let code in this.verificationCodes){
+
+            if (this.verificationCodes[code].email == givenEmail){
+                delete this.verificationCodes[code];
+            }
+
+        }
 
         try{
 
@@ -304,6 +319,34 @@ class databaseHandler{
             }
 
         }
+
+    }
+
+    //loop functions
+    async clearExpiredTokensLoop(intervalTime){
+
+        const hours = 0.00833333; //roughly 30 secs, made it short just for testing
+        const expiryTime = hours * 3600000; // converting hours to miliseconds
+        const currentTime = Date.now();
+
+        for (let tokenID in this.localTokens){
+            if (!this.localTokens[tokenID].lastLoggedIn) continue;
+            if (currentTime - this.localTokens[tokenID].lastLoggedIn >= expiryTime) {
+                delete this.localTokens[tokenID];
+            }
+        }
+
+        await wait(intervalTime);
+
+        this.clearExpiredTokensLoop(intervalTime);
+
+    }
+
+    async verificationCodesLoop(){
+
+        const hours = 1;
+        const expiryTime = hours * 3600000; // converting hours to miliseconds
+        const currentTime = Date.now();
 
     }
 

@@ -12,8 +12,6 @@ function databaseEventsHandler(socket, serverDataHandler){
 
         const { existingLocalUser, existingDatabaseUser } = await serverDataHandler.checkExistingAccount(givenAccountID);
 
-        console.log(existingLocalUser, existingDatabaseUser)
-
         if (!existingDatabaseUser){
 
             socket.emit("invalid-account");
@@ -37,8 +35,6 @@ function databaseEventsHandler(socket, serverDataHandler){
         }
 
         serverDataHandler.addSocketToToken(socket)
-
-        console.log(serverDataHandler.localTokens)
 
         socket.emit("valid-account")
 
