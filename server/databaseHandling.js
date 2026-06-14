@@ -3,6 +3,14 @@ const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const nodemailer = require('nodemailer');
 
+const transporter = nodemailer.createTransport({
+service: 'gmail',
+auth: {
+    user: 'baklafy@gmail.com',
+    pass: process.env.MAIL_PASS,
+}
+});
+
 /*
 let plainPassword = "verysafepassword";
 let saltRounds = 10;
@@ -32,6 +40,8 @@ class databaseHandler{
         this.database = clientReference.db("public");
         this.usersCollection = this.database.collection("users");
         this.playlistCollection = this.database.collection("playlists");
+
+        this.verificationCodes = {};
 
     }
 
@@ -178,8 +188,20 @@ class databaseHandler{
     //creating accounts stuff
 
     verifyUsername(givenUsername){
+
         givenUsername = String(givenUsername);
-        if (givenUsername.length <= 0){
+        const existingUsername = await this.usersCollection.findOne({username: givenUsername});
+
+        if (existingUsername){
+
+            return{
+                success: false,
+                message: "Username already in use"
+            }
+
+        }
+
+        else if (givenUsername.length <= 0){
 
             return {
 
@@ -222,36 +244,72 @@ class databaseHandler{
     }
 
     verifyPassword(givenPassword){
+
         givenPassword = String(givenPassword);
         if (givenPassword.length <= 4){
 
             return {
-
                 success: false,
                 message: "Username too short"
-
             }
 
         }
 
         return {
-
             success: true,
             message: "Valid password"
+        }
+
+    }
+
+    verifyEmail(givenEmail){
+
+        const existingEmail = await this.usersCollection.findOne({email: givenEmail});
+
+        if (existingEmail){
+
+            return{
+                success: false,
+                message: "Email already in use"
+            }
+
+        }
+
+        const verificationCodeSuccess = createAccountVerificationCode(givenEmail);
+
+        return verificationCodeSuccess;
+        
+    }
+
+    createAccountVerificationCode(givenEmail){
+
+        try{
+
+            let mailOptions = {
+
+                from: 'baklafy@gmail.com',
+                to: givenEmail,
+                subject: 'Verify your baklafy account',
+                html: `<p>Your verification code: <strong>${verificationCode}</strong></p>
+                <p>This code will expire around the next 1 hour. <br> <strong>Do not share this code with anyone else.</strong></p>`
+
+            };
+
+        }
+        catch(error){
+
+            return{
+                success: false,
+                message: "Invalid email format"
+            }
 
         }
 
     }
 
-    verifyEmail(){
-
-
-        
-    }
-
 }
 
-function wait (waitTime){
+function wait(waitTime){
 
     return new Promise(resolve => setTimeout(resolve, waitTime))
 
