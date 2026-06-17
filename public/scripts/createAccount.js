@@ -27,7 +27,7 @@ socket.on("account-creation-status", (data)=>{
     createPasswordError.innerHTML = data.validPassword.message;
     emailError.innerHTML = data.validEmail.message;
 
-    if (data.validUsername.message && data.validPassword.message && data.validEmail.message){
+    if (data.validUsername.success && data.validPassword.success && data.validEmail.success){
         alert('Verification code sent to ur email cuhh');
     }
     
