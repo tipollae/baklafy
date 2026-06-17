@@ -58,6 +58,8 @@ Baklafy is a music application built with Node.js, MongoDB, Socket.IO, and moder
 - FFmpeg
 - youtube-dl-exec
 
+---
+
 ## Learning Objectives
 
 Baklafy was built to explore and improve understanding of:
