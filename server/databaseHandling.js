@@ -20,26 +20,6 @@ auth: {
 }
 });
 
-/*
-    let plainPassword = "verysafepassword";
-    let saltRounds = 10;
-
-    async function test(){
-
-        console.log("please hash");
-
-        try {
-            const hashedPassword = await bcrypt.hash(plainPassword, saltRounds);
-            console.log("Secure Hash:", hashedPassword);
-            return hashedPassword;
-        } catch (error) {
-            console.error("Error hashing password:", error);
-        }
-    }
-
-    test();
-*/
-
 
 class databaseHandler{
 
@@ -51,14 +31,6 @@ class databaseHandler{
         this.playlistCollection = this.database.collection("playlists");
 
         this.verificationCodes = {};
-        /*
-        
-        username: username
-        password: hashedPassword
-        email: email
-        dateCreated: Date.now()
-        
-        */
 
     }
 
@@ -122,15 +94,11 @@ class databaseHandler{
         const existingAttribute = Object.hasOwn(this.localTokens[givenTokenID], givenAttribute);
 
         if (existingAttribute){
-
             this.localTokens[givenTokenID][givenAttribute] = givenValue;
-
         }
 
         else{
-
             console.trace("Err: Invalid attribute");
-
         }
 
     }
@@ -148,9 +116,7 @@ class databaseHandler{
         tokenSockets.splice(foundSocketIndex, 1);
 
         if (tokenSockets.length === 0){
-
             this.changeTokenAttribute(socket.data.token, "lastLoggedIn", Date.now());
-
         }
 
     }
@@ -170,8 +136,6 @@ class databaseHandler{
 
     async extractPlaylistIDS(){
 
-
-
     }
 
     async extractPlaylistData(givenAccountID) {
@@ -183,55 +147,48 @@ class databaseHandler{
 
     async verifyUsername(givenUsername){
 
+        if (typeof givenUsername !== "string") {
+            return { 
+                success: false, 
+                message: "Invalid username" 
+            };
+        }
+
         givenUsername = String(givenUsername);
         const existingUsername = await this.usersCollection.findOne({username: givenUsername});
 
         if (existingUsername){
-
             return{
                 success: false,
                 message: "Username already in use"
             }
-
         }
 
         else if (givenUsername.length <= 0){
-
             return {
-
                 success: false,
                 message: "Username too short"
-
             }
-
         }
 
         else if (givenUsername.length >= 13){
-
             return {
-
                 success: false,
                 message: "Username too long"
-
             }
-
         }
 
         else if (givenUsername.includes(" ")){
-
             return {
-
                 success: false,
                 message: "Username includes spaces"
-
             }
-
         }
 
         return {
 
             success: true,
-            message: "Valid username"
+            message: ""
 
         }
 
@@ -239,19 +196,25 @@ class databaseHandler{
 
     verifyPassword(givenPassword){
 
-        givenPassword = String(givenPassword);
-        if (givenPassword.length <= 4){
+        if (typeof givenPassword !== "string") {
+            return { 
+                success: false, 
+                message: "Invalid password" 
+            };
+        }
 
+        givenPassword = String(givenPassword);
+
+        if (givenPassword.length <= 4){
             return {
                 success: false,
-                message: "Username too short"
+                message: "Password too short"
             }
-
         }
 
         return {
             success: true,
-            message: "Valid password"
+            message: ""
         }
 
     }
@@ -261,63 +224,105 @@ class databaseHandler{
         const existingEmail = await this.usersCollection.findOne({email: givenEmail});
 
         if (existingEmail){
-
             return{
                 success: false,
                 message: "Email already in use"
             }
-
         }
 
-        const verificationCode = createAccountVerificationCode(givenEmail);
+        return{
+            success: true,
+            message: ""
+        }
         
     }
 
-    createAccountVerificationCode(givenEmail){
+    async addToVerificationProcess(givenEmail, givenUsername, givenPassword){
 
-        let formedVerificationCode = ""
-        
+        if (typeof givenEmail !== "string") {
+            return { 
+                success: false, 
+                message: "Invalid email" 
+            };
+        }
+
+        givenEmail = String(givenEmail);
+        givenUsername = String(givenUsername);
+        givenPassword = String(givenPassword);
+        const hashedPassword = await this.hashString(givenPassword, 12); //password string, saltRounds
+        if (!hashedPassword){
+            return{
+                success: false,
+                message: "An error occured, please try again"
+            }
+        }
+
+        const existingEmail = await this.verifyEmail(givenEmail);
+        if (!existingEmail.success){
+            return existingEmail;
+        }
+        console.log(`given email: ${givenEmail}`)
+
+        let formedVerificationCode;
         do{
-
             const LENGTH = 6;
+            formedVerificationCode = "";
 
             for (let i = 0; i < LENGTH; i++){
-
                 const character = characters[Math.floor(Math.random()*characters.length)];
                 formedVerificationCode += character;
-
             }
-
         }while(this.verificationCodes[formedVerificationCode]);
 
         for (let code in this.verificationCodes){
-
             if (this.verificationCodes[code].email == givenEmail){
                 delete this.verificationCodes[code];
             }
-
         }
 
+        this.verificationCodes[formedVerificationCode] = {
+            username: givenUsername,
+            password: hashedPassword,
+            email: givenEmail,
+            dateCreated: Date.now(),
+        }
+        console.log(this.verificationCodes[formedVerificationCode])
+
         try{
-
             let mailOptions = {
-
                 from: 'baklafy@gmail.com',
                 to: givenEmail,
                 subject: 'Verify your baklafy account',
-                html: `<p>Your verification code: <strong>${verificationCode}</strong></p>
-                <p>This code will expire around the next 1 hour. <br> <strong>Do not share this code with anyone else.</strong></p>`
-
+                html: `
+                <p>Your verification code: <strong>${formedVerificationCode}</strong></p>
+                <p>This code will expire around the next 30 minutes. <br> <strong>Do not share this code with anyone else.</strong></p>
+                `
             };
 
+            const info = await transporter.sendMail(mailOptions);
+
+            return{
+                success: true,
+                message: ""
+            }
         }
         catch(error){
-
             return{
                 success: false,
                 message: "Invalid email format"
             }
+        }
+    }
 
+    async hashString(givenString, saltRounds){
+
+        try {
+            const hashedPassword = await bcrypt.hash(givenString, saltRounds);
+            console.log("Secure Hash:", hashedPassword);
+            return hashedPassword;
+        } catch (error) {
+            console.error("Error hashing password:", error);
+            return false;
         }
 
     }
@@ -337,16 +342,27 @@ class databaseHandler{
         }
 
         await wait(intervalTime);
-
         this.clearExpiredTokensLoop(intervalTime);
 
     }
 
-    async verificationCodesLoop(){
+    async verificationCodesLoop(intervalTime){
 
-        const hours = 1;
+        const hours = 0.5;
         const expiryTime = hours * 3600000; // converting hours to miliseconds
         const currentTime = Date.now();
+
+        for (let code in this.verificationCodes){
+            if (currentTime - this.verificationCodes[code].dateCreated >= expiryTime){
+                delete this.verificationCodes[code]
+            }
+        }
+
+        await wait(intervalTime)
+        this.verificationCodesLoop(intervalTime);
+
+        console.log('verification codes loop');
+        console.log(this.verificationCodes);
 
     }
 

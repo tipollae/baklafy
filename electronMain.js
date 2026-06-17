@@ -14,7 +14,7 @@ const createWindow = () => {
     }
   })
 
-  win.loadFile('public/index.html')
+  win.loadFile('public/createAccount/index.html')
 }
 
 app.whenReady().then(() => {

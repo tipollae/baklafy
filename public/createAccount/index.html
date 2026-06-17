@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="../styling/createAccount.css" rel="stylesheet">
+</head>
+<body>
+    
+    <div id = "loginContainer">
+
+        <center>
+            <form id = "form">
+
+                <label for = "username">Username:</label><br>
+                <input class = "input" id = "username" name = "username" type = "text" placeholder = "E.g. JohnBobby_7" autocomplete = "off"><br>
+                <span class = "errorDisplay" id = "usernameError"></span><br>
+                <label for = "createPassword">Password:</label><br>
+                <input class = "input" id = "createPassword" name = "createPassword" type = "password" placeholder = "Create password" autocomplete = "off"><br>
+                <span class = "errorDisplay" id = "passwordError"></span><br>
+                <label for = "confirmPassword">Confirm password:</label><br>
+                <input class = "input" id = "confirmPassword" name = "confirmPassword" type = "password" placeholder = "Confirm password" autocomplete = "off"><br>
+                <span class = "errorDisplay" id = "confirmPasswordError"></span><br>
+                <label for = "email">Email:</label><br>
+                <input class = "input" id = "email" name = "email" type = "text" placeholder = "E.g. skibidi@gmail.com" autocomplete = "off"><br>
+                <span class = "errorDisplay" id = "emailError"></span><br>
+                <input class = "submitDetails" id = "submitButton" type="submit" value="Submit" style="width: max-content;">
+
+            </form>
+        </center>
+
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script type="text/javascript" src="../scripts/socketioBasics.js"></script>
+    <script type="text/javascript" src="../scripts/createAccount.js"></script>
+
+</body>
+</html>

@@ -55,8 +55,24 @@ async function connectToMongoDB(){
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
-        serverDataHandler = new databaseHandler(client)
-        serverDataHandler.clearExpiredTokensLoop(3000)
+        serverDataHandler = new databaseHandler(client);
+        serverDataHandler.clearExpiredTokensLoop(3000); //3 sec loop (will extend longer, but short for now cuz testing)
+        serverDataHandler.verificationCodesLoop(3000); //3 sec loop
+
+        await serverDataHandler.usersCollection.createIndex(
+            { username: 1 },
+            { unique: true }
+        );
+
+        await serverDataHandler.usersCollection.createIndex(
+            { email: 1 },
+            { unique: true }
+        );
+
+        await serverDataHandler.usersCollection.createIndex(
+            { accountID: 1 },
+            { unique: true }
+        );
 
     } catch (error) {
         console.error("Err: MongoDB connection failed:", error);
@@ -106,7 +122,7 @@ io.on("connection", async (socket)=>{
 
     socket.on("disconnect", ()=>{
 
-        serverDataHandler.handleDisconnectedSocket(socket)
+        serverDataHandler.handleDisconnectedSocket(socket);
 
     })
 
